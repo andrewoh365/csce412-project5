@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: black;
+        }
+        canvas {
+            border: 2px solid white;
+        }
+        nav {
+            width: 80%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            padding: 20px 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        nav .logo {
+            width: 80px;
+        }
+
+        nav ul li {
+            list-style: none;
+            display: inline-block;
+            margin-left: 40px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 17px;
+        }
+
+        nav li a:hover {
+            color: rgb(255, 90, 90);
+        }
+
+        button {
+            padding: 9px 25px;
+            background-color: #3b3a3a;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease 0s;
+            color: #fff;
+            margin-left: 10px;
+        }
+
+        button:hover {
+            color: rgb(255, 90, 90);
+        }
+
+        h1 {
+            color: #fff;
+            padding: 9px;
+        }
+
+        p {
+            color: #fff;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <img class="logo" src="Images/LOGO.png">
+    <ul class="nav__links">
+        <li><a href="index.html">Landing Page</a></li>
+        <li><a href="TechnicalPortfolio.html">Technical Portfolio</a></li>
+        <li><a href="Qualifications.html">Qualifications</a></li>
+        <li><a href="Service.html">Service</a></li>
+        <li><a href="AIGeneratedPage.html">AI Generated Page</a></li>
+        <a class="toggle"><button onclick="toggleStyleSheet()" type="button">Toggle Style</button></a>
+    </ul>
+</nav>
+<div class="instructions">
+    <h1>Snake</h1>
+    <p>Use arrow keys and collect the fruit!</p>
+</div>
+<canvas id="gameCanvas" width="400" height="400"></canvas>
+
+<div>
+    <h1>Prompt</h1>
+    <p>Code snake in html</p>
+    <p>Make it so the website doesn't scroll with arrow keys</p>
+    <p>Make it so food can't spawn on the outer edge</p>
+</div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const gridSize = 20;
+    const snakeSpeed = 200;
+
+    let snake = [{ x: 10, y: 10 }];
+    let food = { x: 5, y: 5 };
+    let dx = 0;
+    let dy = 0;
+
+    function drawSnake() {
+        snake.forEach((segment) => {
+            ctx.fillStyle = "green";
+            ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+        });
+    }
+
+    function drawFood() {
+        ctx.fillStyle = "red";
+        ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+    }
+
+    function moveSnake() {
+        const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+        snake.unshift(head);
+
+        if (head.x === food.x && head.y === food.y) {
+            generateFood();
+        } else {
+            snake.pop();
+        }
+    }
+
+    function generateFood() {
+        const maxX = Math.floor((canvas.width / gridSize) - 2); // Exclude the outer edge
+        const maxY = Math.floor((canvas.height / gridSize) - 2); // Exclude the outer edge
+        food = {
+            x: Math.floor(1 + Math.random() * maxX) + 1, // Start from 1 to exclude the outer edge
+            y: Math.floor(1 + Math.random() * maxY) + 1, // Start from 1 to exclude the outer edge
+        };
+    }
+
+    function checkCollision() {
+        const head = snake[0];
+
+        // Check if the head collides with the walls
+        if (
+            head.x < 0 ||
+            head.x >= canvas.width / gridSize ||
+            head.y < 0 ||
+            head.y >= canvas.height / gridSize
+        ) {
+            gameOver();
+            return true; // Collision with the walls
+        }
+
+        // Check if the head collides with the snake's body
+        for (let i = 1; i < snake.length; i++) {
+            if (head.x === snake[i].x && head.y === snake[i].y) {
+                gameOver();
+                return true; // Collision with itself
+            }
+        }
+
+        return false; // No collision
+    }
+
+    function gameOver() {
+        clearInterval(gameInterval);
+        alert("Game Over!");
+        document
+
+    }
+
+    function gameLoop() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawSnake();
+        drawFood();
+        moveSnake();
+        if (checkCollision()) {
+            return;
+        }
+    }
+
+    document.addEventListener("keydown", (event) => {
+        // Prevent default arrow key behavior
+        if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+            event.preventDefault();
+        }
+
+        switch (event.key) {
+            case "ArrowUp":
+                if (dy !== 1) {
+                    dx = 0;
+                    dy = -1;
+                }
+                break;
+            case "ArrowDown":
+                if (dy !== -1) {
+                    dx = 0;
+                    dy = 1;
+                }
+                break;
+            case "ArrowLeft":
+                if (dx !== 1) {
+                    dx = -1;
+                    dy = 0;
+                }
+                break;
+            case "ArrowRight":
+                if (dx !== -1) {
+                    dx = 1;
+                    dy = 0;
+                }
+                break;
+        }
+    });
+
+    generateFood();
+    const gameInterval = setInterval(gameLoop, snakeSpeed);
+</script>
+<script src="functions.js"></script>
+</body>
+</html>
